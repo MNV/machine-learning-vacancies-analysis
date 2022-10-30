@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  # сервис Scrapy
+  app:
+    build: .
+    image: scrapy
+    env_file:
+      - .env
+    volumes:
+      - ./src:/src
+      - ./docs:/docs
+    working_dir: /src/
