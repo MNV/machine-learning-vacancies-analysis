@@ -3,8 +3,6 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 import os
-# useful for handling different item types with a single interface
-
 import sys
 
 import pymongo
@@ -12,7 +10,7 @@ from pymongo.database import Database
 from scrapy import Item, Spider
 from scrapy.crawler import Crawler
 
-from vacancies.items import VacancyItem
+from vacancies.vacancies.items import VacancyItem
 
 
 class MongoDBPipeline:

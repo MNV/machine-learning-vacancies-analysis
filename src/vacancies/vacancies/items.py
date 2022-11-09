@@ -31,19 +31,6 @@ class Metro(Item):
     lng = Field()
 
 
-class MetroStations(Item):
-    """
-    Информация о ближайших станциях метро.
-    """
-
-    station_name = Field()
-    line_name = Field()
-    station_id = Field()
-    line_id = Field()
-    lat = Field()
-    lng = Field()
-
-
 class Address(Item):
     """
     Адрес места работы.
@@ -57,7 +44,7 @@ class Address(Item):
     lng = Field()
     raw = Field()
     metro = Field(serializer=Metro)
-    metro_stations = Field(serializer=MetroStations)
+    metro_stations = Field(serializer=Metro)
 
 
 class KeySkill(Item):

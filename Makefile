@@ -4,6 +4,10 @@
 build:
 	docker-compose build
 
+# обновление зависимостей
+update:
+	docker-compose run --workdir / app /bin/bash -c "poetry update"
+
 # генерация документации
 docs-html:
 	docker-compose run --workdir /docs app /bin/bash -c "make html"

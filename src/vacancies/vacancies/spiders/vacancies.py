@@ -1,11 +1,12 @@
 import json
 import random
+from json import JSONDecodeError
 from typing import Any, Generator, List, Optional
 
 from scrapy.http import TextResponse
 from scrapy.spiders import Spider
 
-from vacancies.items import (
+from vacancies.vacancies.items import (
     Address,
     AreaType,
     Employer,
@@ -25,6 +26,22 @@ class VacanciesSpider(Spider):
     name = "vacancies"
     start_urls = ["https://api.hh.ru/areas"]
 
+    @staticmethod
+    def _load_json(response: TextResponse) -> Optional[dict]:
+        """
+        Обработка ответа от сервера.
+
+        :param response: Ответ от сервера.
+        :return:
+        """
+
+        try:
+            result = json.loads(response.body)
+        except (TypeError, JSONDecodeError):
+            result = None
+
+        return result
+
     def parse(self, response: TextResponse, **kwargs: Any) -> Optional[Generator]:
         """
         Парсинг данных о регионах.
@@ -34,7 +51,7 @@ class VacanciesSpider(Spider):
         :return:
         """
 
-        json_res = json.loads(response.body)
+        json_res = self._load_json(response)
         if not isinstance(json_res, list) or len(json_res) < 1:
             return None
 
@@ -69,7 +86,10 @@ class VacanciesSpider(Spider):
         :return:
         """
 
-        json_res = json.loads(response.body)
+        json_res = self._load_json(response)
+        if not json_res:
+            return None
+
         pages = int(json_res["pages"])
         if not isinstance(json_res, dict) or pages < 1:
             return None
@@ -98,7 +118,7 @@ class VacanciesSpider(Spider):
         :return:
         """
 
-        json_res = json.loads(response.body)
+        json_res = self._load_json(response)
         if not isinstance(json_res, dict) or len(json_res["items"]) < 1:
             return None
 
@@ -119,13 +139,51 @@ class VacanciesSpider(Spider):
         :return:
         """
 
-        json_res = json.loads(response.body)
+        json_res = self._load_json(response)
         if not json_res:
             return None
 
         vacancy = VacancyItem()
-        vacancy["id"] = json_res["id"]
-        vacancy["premium"] = json_res["premium"]
+
+        keys = {
+            "id",
+            "premium",
+            "relations",
+            "name",
+            "insider_interview",
+            "response_letter_required",
+            "salary",
+            "allow_messages",
+            "contacts",
+            "description",
+            "accept_handicapped",
+            "accept_kids",
+            "archived",
+            "response_url",
+            "code",
+            "hidden",
+            "quick_responses_allowed",
+            "driver_license_types",
+            "accept_incomplete_resumes",
+            "published_at",
+            "created_at",
+            "initial_created_at",
+            "negotiations_url",
+            "suitable_resumes_url",
+            "apply_alternate_url",
+            "has_test",
+            "test",
+            "alternate_url",
+            "working_days",
+            "working_time_intervals",
+            "working_time_modes",
+            "accept_temporary",
+            "languages",
+        }
+
+        for key in keys:
+            vacancy[key] = json_res.get(key)
+
         vacancy["billing_type"] = (
             IdName(
                 id=json_res["billing_type"]["id"],
@@ -134,10 +192,6 @@ class VacanciesSpider(Spider):
             if json_res["billing_type"]
             else None
         )
-        vacancy["relations"] = json_res["relations"]
-        vacancy["name"] = json_res["name"]
-        vacancy["insider_interview"] = json_res["insider_interview"]
-        vacancy["response_letter_required"] = json_res["response_letter_required"]
         vacancy["area"] = (
             AreaType(
                 id=json_res["area"]["id"],
@@ -147,7 +201,6 @@ class VacanciesSpider(Spider):
             if json_res["area"]
             else None
         )
-        vacancy["salary"] = json_res["salary"]
         vacancy["type"] = (
             IdName(
                 id=json_res["type"]["id"],
@@ -193,7 +246,6 @@ class VacanciesSpider(Spider):
             if json_res["address"]
             else None
         )
-        vacancy["allow_messages"] = json_res["allow_messages"]
         vacancy["experience"] = (
             IdName(
                 id=json_res["experience"]["id"],
@@ -226,8 +278,6 @@ class VacanciesSpider(Spider):
             if json_res["department"]
             else None
         )
-        vacancy["contacts"] = json_res["contacts"]
-        vacancy["description"] = json_res["description"]
 
         # содержит исходный код с текстом из description
         # vacancy["branded_description"] = json_res["branded_description"]
@@ -240,10 +290,6 @@ class VacanciesSpider(Spider):
             if json_res["key_skills"]
             else None
         )
-        vacancy["accept_handicapped"] = json_res["accept_handicapped"]
-        vacancy["accept_kids"] = json_res["accept_kids"]
-        vacancy["archived"] = json_res["archived"]
-        vacancy["response_url"] = json_res["response_url"]
         vacancy["specializations"] = (
             [
                 Specialization(
@@ -268,11 +314,6 @@ class VacanciesSpider(Spider):
             if json_res["professional_roles"]
             else None
         )
-        vacancy["code"] = json_res["code"]
-        vacancy["hidden"] = json_res["hidden"]
-        vacancy["quick_responses_allowed"] = json_res["quick_responses_allowed"]
-        vacancy["driver_license_types"] = json_res["driver_license_types"]
-        vacancy["accept_incomplete_resumes"] = json_res["accept_incomplete_resumes"]
         vacancy["employer"] = (
             Employer(
                 id=json_res["employer"].get("id"),
@@ -286,19 +327,5 @@ class VacanciesSpider(Spider):
             if json_res["employer"]
             else None
         )
-        vacancy["published_at"] = json_res["published_at"]
-        vacancy["created_at"] = json_res["created_at"]
-        vacancy["initial_created_at"] = json_res["initial_created_at"]
-        vacancy["negotiations_url"] = json_res["negotiations_url"]
-        vacancy["suitable_resumes_url"] = json_res["suitable_resumes_url"]
-        vacancy["apply_alternate_url"] = json_res["apply_alternate_url"]
-        vacancy["has_test"] = json_res["has_test"]
-        vacancy["test"] = json_res["test"]
-        vacancy["alternate_url"] = json_res["alternate_url"]
-        vacancy["working_days"] = json_res["working_days"]
-        vacancy["working_time_intervals"] = json_res["working_time_intervals"]
-        vacancy["working_time_modes"] = json_res["working_time_modes"]
-        vacancy["accept_temporary"] = json_res["accept_temporary"]
-        vacancy["languages"] = json_res["languages"]
 
         yield vacancy

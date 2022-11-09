@@ -10,4 +10,5 @@ services:
     volumes:
       - ./src:/src
       - ./docs:/docs
+      - ./poetry.lock:/poetry.lock
     working_dir: /src/
