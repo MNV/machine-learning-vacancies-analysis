@@ -1,0 +1,52 @@
+[tool.poetry]
+name = "Vacancies analysis"
+version = "0.1.0"
+description = "Vacancies analysis with machine learning."
+authors = ["mnv", "aleksandrmurzin", "joein"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+# парсинг
+Scrapy = "^2.7.0"
+scrapy-user-agents = "^0.1.1"
+# работа с MongoDB
+pymongo = {version = "^4.3.2", extras = ["srv"]}
+# валидация данных
+pydantic = "^1.10.2"
+
+# документация
+[tool.poetry.group.documentation]
+optional = true
+
+[tool.poetry.group.documentation.dependencies]
+Sphinx = "^5.3.0"
+sphinx-rtd-theme= "^1.0.0"
+
+# автоматические тесты
+[tool.poetry.group.tests]
+optional = true
+
+[tool.poetry.group.tests.dependencies]
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+pytest-mock = "^3.10.0"
+
+# статический анализ кода (линтеры)
+[tool.poetry.group.linters]
+optional = true
+
+[tool.poetry.group.linters.dependencies]
+isort = "^5.10.1"
+flake8 = "^5.0.4"
+pylint = "^2.15.5"
+mypy = "^0.982"
+# автоматическое форматирование кода
+black = "^22.10.0"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
